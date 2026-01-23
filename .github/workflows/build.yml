@@ -13,8 +13,23 @@ permissions:
   packages: write
 
 jobs:
-  build-executable:
-    runs-on: ubuntu-latest
+  build-executables:
+    name: Build for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            artifact_name: SVGMasterPro_Linux
+            executable_name: SVGMasterPro
+          - os: windows-latest
+            artifact_name: SVGMasterPro_Windows.exe
+            executable_name: SVGMasterPro.exe
+          - os: macos-latest
+            artifact_name: SVGMasterPro_MacOS
+            executable_name: SVGMasterPro
+
     steps:
     - uses: actions/checkout@v4
 
@@ -23,34 +38,57 @@ jobs:
       with:
         python-version: '3.12'
 
-    - name: Install dependencies
+    - name: Install dependencies (Linux)
+      if: runner.os == 'Linux'
       run: |
         sudo apt-get update
         sudo apt-get install -y libegl1 libxkbcommon-x11-0 libdbus-1-3 libxcb-cursor0
+
+    - name: Install dependencies (All)
+      run: |
         python -m pip install --upgrade pip
         pip install PyQt6 svgelements lxml pyinstaller
 
     - name: Build with PyInstaller
+      shell: bash
       run: |
-        pyinstaller --onefile --windowed --clean --name="SVGMasterPro_Linux" app/main.py
+        pyinstaller --onefile --windowed --clean --name="SVGMasterPro" app/main.py
+
+    - name: Prepare Artifact
+      shell: bash
+      run: |
+        # Rename output to specific OS name
+        # PyInstaller puts output in dist/
+        mv dist/SVGMasterPro* dist/${{ matrix.executable_name }}
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: SVGMasterPro_Linux
-        path: dist/SVGMasterPro_Linux
+        name: ${{ matrix.artifact_name }}
+        path: dist/${{ matrix.executable_name }}
 
-    - name: Release
-      uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
-      with:
-        files: dist/SVGMasterPro_Linux
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  create-release:
+    needs: build-executables
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: List artifacts
+        run: ls -R artifacts
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: artifacts/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-docker:
     runs-on: ubuntu-latest
-    needs: build-executable # Optional: run in parallel if preferred, but sequential is fine
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -78,3 +116,4 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
