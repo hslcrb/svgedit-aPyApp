@@ -14,6 +14,7 @@ permissions:
 
 jobs:
   build-executables:
+
     name: Build for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -21,14 +22,11 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         include:
           - os: ubuntu-latest
-            artifact_name: SVGMasterPro_Linux
-            executable_name: SVGMasterPro
+            asset_name: SVGMasterPro_Linux
           - os: windows-latest
-            artifact_name: SVGMasterPro_Windows.exe
-            executable_name: SVGMasterPro.exe
+            asset_name: SVGMasterPro_Windows.exe
           - os: macos-latest
-            artifact_name: SVGMasterPro_MacOS
-            executable_name: SVGMasterPro
+            asset_name: SVGMasterPro_MacOS
 
     steps:
     - uses: actions/checkout@v4
@@ -52,20 +50,32 @@ jobs:
     - name: Build with PyInstaller
       shell: bash
       run: |
-        pyinstaller --onefile --windowed --clean --name="SVGMasterPro" app/main.py
+        # Build using python -m PyInstaller to ensure path correctness
+        # --clean to clear cache
+        python -m PyInstaller --onefile --windowed --clean --name="SVGMasterPro" app/main.py
 
-    - name: Prepare Artifact
+    - name: Rename Output
       shell: bash
       run: |
-        # Rename output to specific OS name
-        # PyInstaller puts output in dist/
-        mv dist/SVGMasterPro* dist/${{ matrix.executable_name }}
+        # Robust renaming strategy
+        cd dist
+        # Windows output
+        if [ -f "SVGMasterPro.exe" ]; then
+          mv "SVGMasterPro.exe" "${{ matrix.asset_name }}"
+        # Unix output
+        elif [ -f "SVGMasterPro" ]; then
+          mv "SVGMasterPro" "${{ matrix.asset_name }}"
+        else
+          echo "Error: Output binary not found!"
+          ls -la
+          exit 1
+        fi
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ matrix.artifact_name }}
-        path: dist/${{ matrix.executable_name }}
+        name: ${{ matrix.asset_name }}
+        path: dist/${{ matrix.asset_name }}
 
   create-release:
     needs: build-executables
@@ -86,6 +96,7 @@ jobs:
           files: artifacts/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
   build-docker:
     runs-on: ubuntu-latest

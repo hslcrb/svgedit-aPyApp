@@ -190,9 +190,31 @@ class IconProvider:
             painter.setBrush(Qt.BrushStyle.NoBrush)
             painter.drawLine(16, 16, 48, 48)
             painter.drawLine(48, 16, 16, 48)
+            
+        elif name == "zoom_in":
+            # Magnifying glass with +
+            painter.drawEllipse(12, 12, 32, 32)
+            painter.drawLine(36, 36, 52, 52)
+            painter.drawLine(20, 28, 36, 28)
+            painter.drawLine(28, 20, 28, 36)
+            
+        elif name == "zoom_out":
+            # Magnifying glass with -
+            painter.drawEllipse(12, 12, 32, 32)
+            painter.drawLine(36, 36, 52, 52)
+            painter.drawLine(20, 28, 36, 28)
+            
+        elif name == "zoom_fit":
+            # Square with arrows pointing to corners
+            painter.drawRoundedRect(16, 16, 32, 32, 4, 4)
+            painter.drawLine(12, 12, 22, 12)
+            painter.drawLine(12, 12, 12, 22)
+            painter.drawLine(52, 52, 42, 52)
+            painter.drawLine(52, 52, 52, 42)
 
         painter.end()
         return QIcon(pixmap)
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -283,8 +305,22 @@ class MainWindow(QMainWindow):
         self.add_toolbar_action(toolbar, "Export", self.export_selected, "Export Selected to SVG", "export")
         self.add_toolbar_action(toolbar, "Split All", self.export_split_all, "Export All items as separate files", "split")
 
+        toolbar.addSeparator()
+
+        # View Actions
+        zoom_in_action = self.add_toolbar_action(toolbar, "Zoom In", self.zoom_in, "Zoom In (Ctrl++)", "zoom_in")
+        zoom_in_action.setShortcut("Ctrl++")
+        zoom_in_action.setShortcutVisibleInContextMenu(True)
+        
+        zoom_out_action = self.add_toolbar_action(toolbar, "Zoom Out", self.zoom_out, "Zoom Out (Ctrl+-)", "zoom_out")
+        zoom_out_action.setShortcut("Ctrl+-")
+        
+        reset_zoom_action = self.add_toolbar_action(toolbar, "Fit", self.reset_zoom, "Fit to Screen (Ctrl+0)", "zoom_fit")
+        reset_zoom_action.setShortcut("Ctrl+0")
+
         self.setStatusBar(QStatusBar(self))
         self.statusBar().showMessage("Ready")
+
         
         # Add Log Dock
         from PyQt6.QtWidgets import QDockWidget, QTextEdit
@@ -657,6 +693,19 @@ class MainWindow(QMainWindow):
             
         except Exception as e:
             self.log_message(f"Split export failed: {e}")
+
+    def zoom_in(self):
+        self.canvas.scale(1.2, 1.2)
+
+    def zoom_out(self):
+        self.canvas.scale(1/1.2, 1/1.2)
+
+    def reset_zoom(self):
+        if self.canvas.scene.items():
+            self.canvas.fitInView(self.canvas.scene.itemsBoundingRect(), Qt.AspectRatioMode.KeepAspectRatio)
+        else:
+            self.canvas.resetTransform()
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
