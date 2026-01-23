@@ -1,16 +1,20 @@
-name: Build Single Executable
+name: Build and Release
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    tags:
+      - 'v*'
+    branches:
+      - main
   workflow_dispatch:
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+permissions:
+  contents: write
+  packages: write
 
+jobs:
+  build-executable:
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
 
@@ -21,20 +25,56 @@ jobs:
 
     - name: Install dependencies
       run: |
+        sudo apt-get update
+        sudo apt-get install -y libegl1 libxkbcommon-x11-0 libdbus-1-3 libxcb-cursor0
         python -m pip install --upgrade pip
         pip install PyQt6 svgelements lxml pyinstaller
 
     - name: Build with PyInstaller
       run: |
-        # --onefile: Create a single executable
-        # --windowed: Do not ensure a console window (for GUI)
-        # --name: Name of the output executable
-        # --clean: Clean PyInstaller cache
-        pyinstaller --onefile --windowed --clean --name="SVGMasterPro" app/main.py
+        pyinstaller --onefile --windowed --clean --name="SVGMasterPro_Linux" app/main.py
 
-    - name: Upload Executable Artifact
+    - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: SVGMasterPro-Linux
-        path: dist/SVGMasterPro
-        if-no-files-found: error
+        name: SVGMasterPro_Linux
+        path: dist/SVGMasterPro_Linux
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: dist/SVGMasterPro_Linux
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-docker:
+    runs-on: ubuntu-latest
+    needs: build-executable # Optional: run in parallel if preferred, but sequential is fine
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
