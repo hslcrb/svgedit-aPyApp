@@ -1,0 +1,17 @@
+.git
+.github
+.gitignore
+.dockerignore
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+venv
+.venv
+node_modules
+dist
+build
+*.spec
+*_parts
+*.log
+export.svg

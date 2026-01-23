@@ -2,7 +2,7 @@ FROM python:3.12-slim
 
 # Install system dependencies for PyQt6
 RUN apt-get update && apt-get install -y \
-    libgl1-mesa-glx \
+    libgl1 \
     libegl1 \
     libxkbcommon-x11-0 \
     libdbus-1-3 \
@@ -15,7 +15,9 @@ RUN apt-get update && apt-get install -y \
     libxcb-shape0 \
     libxcb-xfixes0 \
     libxcb-xinerama0 \
+    libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
+
 
 WORKDIR /app
 
