@@ -37,27 +37,39 @@ Also available as a Docker image via `ghcr.io`.
 
 ## 🛠️ Installation & Execution
 
-Python 3.12 or higher is recommended.
+Choose your preferred method to get started with SVG Master Pro.
 
-### 1. Environment Setup
+### 1. 🚀 Native Desktop App (Recommended)
+Download the standalone executable for your operating system from the [Releases](https://github.com/hslcrb/svgedit-aPyApp/releases) page.
+- **Linux**: `SVGMasterPro_Linux`
+- **Windows**: `SVGMasterPro_Windows.exe`
+- **MacOS**: `SVGMasterPro_MacOS`
+*No installation required. Just download and run.*
 
-Open a terminal, navigate to the project directory, and use the provided script for easy execution.
-
+### 2. 🐳 Docker Container
+Run SVG Master Pro without installing any dependencies on your host system using Docker.
 ```bash
-# Navigate to project folder
-cd svgedit/app
+# Pull the latest image
+docker pull ghcr.io/hslcrb/svgedit-apyapp:main
 
-# Grant execution permission (first time only)
+# Run with X11 forwarding (Linux example)
+xhost +local:docker
+docker run -it --rm \
+  -e DISPLAY=$DISPLAY \
+  -v /tmp/.X11-unix:/tmp/.X11-unix \
+  ghcr.io/hslcrb/svgedit-apyapp:main
+```
+
+### 3. 🐍 From Source (For Developers)
+
+#### A. Using the Quick Script
+```bash
+cd app
 chmod +x run.sh
-
-# Run program
 ./run.sh
 ```
 
-### 2. Manual Installation (For Developers)
-
-To set up a virtual environment manually:
-
+#### B. Manual Manual Setup
 ```bash
 # Create and activate virtual environment
 python3 -m venv venv
@@ -67,8 +79,9 @@ source venv/bin/activate
 pip install PyQt6 svgelements lxml
 
 # Run
-python main.py
+python app/main.py
 ```
+
 
 ## 🎮 Usage Guide
 

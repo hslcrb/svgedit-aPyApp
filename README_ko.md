@@ -33,27 +33,40 @@
 또한 `ghcr.io`를 통해 도커 이미지로도 제공됩니다.
 
 
-이 프로젝트는 Python 3.12 이상의 환경에서 실행하는 것을 권장합니다.
+## 🛠️ 설치 및 실행
 
-### 1. 환경 설정
+사용 환경에 맞는 최적의 설치 방법을 선택하세요.
 
-터미널을 열고 프로젝트 디렉토리로 이동한 후, 제공된 스크립트를 사용하여 간편하게 실행할 수 있습니다.
+### 1. 🚀 데스크톱 앱 (추천)
+별도의 설치 없이 [릴리즈 페이지](https://github.com/hslcrb/svgedit-aPyApp/releases)에서 본인의 OS에 맞는 실행 파일을 다운로드하여 바로 사용하세요.
+- **Linux**: `SVGMasterPro_Linux`
+- **Windows**: `SVGMasterPro_Windows.exe`
+- **MacOS**: `SVGMasterPro_MacOS`
 
+### 2. 🐳 도커 (Docker)
+시스템에 직접 라이브러리를 설치하지 않고 도커를 사용하여 격리된 환경에서 실행할 수 있습니다.
 ```bash
-# 프로젝트 폴더로 이동
-cd svgedit/app
+# 최신 이미지 풀
+docker pull ghcr.io/hslcrb/svgedit-apyapp:main
 
-# 실행 권한 부여 (최초 1회)
+# X11 포워딩을 이용한 실행 (리눅스 예시)
+xhost +local:docker
+docker run -it --rm \
+  -e DISPLAY=$DISPLAY \
+  -v /tmp/.X11-unix:/tmp/.X11-unix \
+  ghcr.io/hslcrb/svgedit-apyapp:main
+```
+
+### 3. 🐍 소스 코드 (개발자용)
+
+#### A. 간편 스크립트 사용
+```bash
+cd app
 chmod +x run.sh
-
-# 프로그램 실행
 ./run.sh
 ```
 
-### 2. 수동 설치 (개발자용)
-
-직접 가상환경을 구성하고 싶다면 아래 절차를 따르세요.
-
+#### B. 수동 설치 및 실행
 ```bash
 # 가상환경 생성 및 활성화
 python3 -m venv venv
@@ -63,8 +76,9 @@ source venv/bin/activate
 pip install PyQt6 svgelements lxml
 
 # 실행
-python main.py
+python app/main.py
 ```
+
 
 ## 🎮 사용 가이드
 
