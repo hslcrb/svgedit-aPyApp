@@ -21,29 +21,3 @@ See the [Installation](#installation--execution) section in the main README.
 *   Follow PEP 8 for Python code.
 *   Ensure UI remains consistent with the dark mode aesthetic.
 *   Document new features in both English and Korean README files.
-
----
-
-# SVG 마스터 프로 기여 가이드
-
-기여를 환영합니다! 프로젝트의 품질과 일관성을 유지하기 위해 아래 가이드를 준수해 주세요.
-
-## 기여 방법
-
-1.  **버그 보고**: 버그 내용과 재현 방법을 설명하는 이슈를 생성해 주세요.
-2.  **기능 제안**: 새로운 기능에 대해 논의하려면 이슈를 생성해 주세요.
-3.  **풀 리퀘스트(PR) 제출**:
-    *   저장소를 포크(Fork)합니다.
-    *   기능 브랜치를 생성합니다.
-    *   변경 사항을 적용합니다.
-    *   수정 내용에 대한 명확한 설명과 함께 PR을 제출합니다.
-
-## 개발 환경 설정
-
-메인 README의 [설치 및 실행](#installation--execution) 섹션을 참고하세요.
-
-## 스타일 가이드
-
-*   파이썬 코드는 PEP 8 표준을 따릅니다.
-*   UI 일관성을 위해 다크 모드 심미성을 유지해 주세요.
-*   새로운 기능은 영어와 한국어 README 모두에 기록해 주세요.

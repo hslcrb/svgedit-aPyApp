@@ -69,7 +69,8 @@ chmod +x run.sh
 ./run.sh
 ```
 
-#### B. Manual Manual Setup
+#### B. Manual Setup
+
 ```bash
 # Create and activate virtual environment
 python3 -m venv venv
