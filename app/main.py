@@ -8,8 +8,9 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import (
     QPainter, QPen, QBrush, QColor, QPainterPath, 
-    QAction, QIcon, QCursor, QPixmap
+    QAction, QIcon, QCursor, QPixmap, QKeySequence
 )
+
 
 from PyQt6.QtCore import Qt, QRectF, QPointF, QSize
 import svgelements as svg
@@ -629,11 +630,12 @@ class MainWindow(QMainWindow):
             for item in self.canvas.scene.selectedItems():
                 self.canvas.scene.removeItem(item)
             self.statusBar().showMessage("Deleted selected items")
-        elif event.matches(Qt.KeySequence.StandardKey.SelectAll):
+        elif event.matches(QKeySequence.StandardKey.SelectAll):
             for item in self.canvas.scene.items():
                 item.setSelected(True)
         else:
             super().keyPressEvent(event)
+
 
     def export_split_all(self):
         """Export all top-level items as separate SVG files: OriginalName_1.svg, etc."""
