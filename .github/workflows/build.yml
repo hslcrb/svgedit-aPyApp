@@ -26,8 +26,8 @@ jobs:
         pip install -r requirements.txt
     - name: Build with PyInstaller
       run: |
-        # Ensure we are in the root directory where requirements.txt is located
-        # pyinstaller needs to point to the main script
+        # requirements.txt가 위치한 루트 디렉토리에 있는지 확인 / Ensure we are in the root directory
+        # pyinstaller는 메인 스크립트를 가리켜야 함 / pyinstaller needs to point to the main script
         pyinstaller --onefile --windowed --name=SVGMasterPro app/main.py
     - name: Upload artifact
       uses: actions/upload-artifact@v4
